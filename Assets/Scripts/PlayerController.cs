@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using MyUtils;
+using Unity.Netcode;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : NetworkBehaviour
 {
     [SerializeField] private float speed = 5f;
     [SerializeField] private float fireRate = 1f;
@@ -24,6 +25,8 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        if (!IsOwner) return;
+
         UpdateTimers();
         AttemptToShoot();
         CheckMovement();
@@ -76,16 +79,10 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0) && shootCd <= 0)
         {
-            Shoot();
+            SpawnBullet(firePoint.position, firePoint.right, bulletSpeed);
+            SpawnBulletServerRpc(firePoint.position, firePoint.right, bulletSpeed);
             shootCd = fireRate;
         }
-    }
-
-    private void Shoot()
-    {
-        Bullet bullet = Instantiate(bulletPrefab).GetComponent<Bullet>();
-        bullet.transform.position = firePoint.position;
-        bullet.Shoot(firePoint.right, bulletSpeed);
     }
 
     private void UpdateSight()
@@ -99,5 +96,26 @@ public class PlayerController : MonoBehaviour
         hitPos.z = 0;
 
         lineSight.SetPosition(1, hitPos);
+    }
+
+    [ServerRpc]
+    private void SpawnBulletServerRpc(Vector3 position, Vector3 direction, float speed)
+    {
+        SpawnBulletClientRpc(position, direction, speed);
+    }
+
+    [ClientRpc]
+    private void SpawnBulletClientRpc(Vector3 position, Vector3 direction, float speed)
+    {
+        // The owner already spawned the bullet for faster input so only other clients need to spawn it
+        if (IsOwner) return;
+        SpawnBullet(position, direction, speed);
+    }
+
+    private void SpawnBullet(Vector3 position, Vector3 direction, float speed)
+    {
+        Bullet bullet = Instantiate(bulletPrefab, position, Quaternion.identity).GetComponent<Bullet>();
+        bullet.gameObject.GetComponent<NetworkObject>().Spawn(true);
+        bullet.Shoot(direction, speed);
     }
 }

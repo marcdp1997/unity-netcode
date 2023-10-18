@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using MyUtils;
+using Unity.Netcode;
 
 public class Bullet : MonoBehaviour
 {
@@ -31,9 +32,12 @@ public class Bullet : MonoBehaviour
 
     private void CreateExplosion()
     {
-        GameObject explosion = Instantiate(explosionPrefab);
-        explosion.transform.position = transform.position;
-        Destroy(gameObject);
-        Destroy(explosion, 1f);
+        //GameObject explosion = Instantiate(explosionPrefab);
+        //explosion.GetComponent<NetworkObject>().Spawn(true);
+        //explosion.transform.position = transform.position;
+
+        gameObject.GetComponent<NetworkObject>().Despawn(true);
+
+        //Destroy(explosion, 1f);
     }
 }
