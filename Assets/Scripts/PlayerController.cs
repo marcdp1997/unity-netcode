@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using MyUtils;
 using Unity.Netcode;
+using UnityEngine.EventSystems;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -11,16 +12,20 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float bulletSpeed = 5f;
     [SerializeField] private Transform gunRoot;
     [SerializeField] private Transform firePoint;
+    [SerializeField] private Collider2D hitbox;
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private LineRenderer lineSight;
     [SerializeField] private List<GameObject> heartsFill;
 
-    private int currHearts;
+    private NetworkVariable<ushort> currHearts;
     private float shootCd;
 
     private void Awake()
     {
-        currHearts = heartsFill.Count;
+        currHearts = new NetworkVariable<ushort>((ushort)heartsFill.Count, NetworkVariableReadPermission.Everyone,
+                NetworkVariableWritePermission.Server);
+
+        if (!IsServer) currHearts.OnValueChanged += UpdateHearts;
     }
 
     private void Update()
@@ -64,22 +69,25 @@ public class PlayerController : NetworkBehaviour
 
     public void LoseHeart()
     {
-        if (currHearts == 0) return;
+        if (currHearts.Value == 0) return;
 
-        heartsFill[currHearts - 1].SetActive(false);
-        currHearts--;
+        currHearts.Value -= 1;
 
-        if (currHearts == 0)
+        if (currHearts.Value == 0)
         {
             //lose
         }
+    }
+
+    private void UpdateHearts(ushort prevValue, ushort newValue)
+    {
+        heartsFill[prevValue - 1].SetActive(false);
     }
 
     private void AttemptToShoot()
     {
         if (Input.GetMouseButtonDown(0) && shootCd <= 0)
         {
-            SpawnBullet(firePoint.position, firePoint.right, bulletSpeed);
             SpawnBulletServerRpc(firePoint.position, firePoint.right, bulletSpeed);
             shootCd = fireRate;
         }
@@ -98,24 +106,16 @@ public class PlayerController : NetworkBehaviour
         lineSight.SetPosition(1, hitPos);
     }
 
-    [ServerRpc]
+    // RPCs are reliable by default. This means they're guaranteed to be received and
+    // executed on the remote side. However, sometimes developers might want to opt-out
+    // reliability, which is often the case for non-critical events such as particle
+    // effects, sounds effects etc.
+    [ServerRpc(Delivery = RpcDelivery.Reliable, RequireOwnership = false)]
     private void SpawnBulletServerRpc(Vector3 position, Vector3 direction, float speed)
-    {
-        SpawnBulletClientRpc(position, direction, speed);
-    }
-
-    [ClientRpc]
-    private void SpawnBulletClientRpc(Vector3 position, Vector3 direction, float speed)
-    {
-        // The owner already spawned the bullet for faster input so only other clients need to spawn it
-        if (IsOwner) return;
-        SpawnBullet(position, direction, speed);
-    }
-
-    private void SpawnBullet(Vector3 position, Vector3 direction, float speed)
     {
         Bullet bullet = Instantiate(bulletPrefab, position, Quaternion.identity).GetComponent<Bullet>();
         bullet.gameObject.GetComponent<NetworkObject>().Spawn(true);
         bullet.Shoot(direction, speed);
+        Physics2D.IgnoreCollision(bullet.GetCollider(), hitbox);
     }
 }

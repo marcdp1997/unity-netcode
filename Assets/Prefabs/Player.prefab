@@ -456,6 +456,7 @@ MonoBehaviour:
   bulletSpeed: 25
   gunRoot: {fileID: 4345095195581158736}
   firePoint: {fileID: 5679925318234147196}
+  hitbox: {fileID: 1318296210440966126}
   bulletPrefab: {fileID: 2683624967947735879, guid: 43b82d47257c4ff42a54db79a8a41f0d,
     type: 3}
   lineSight: {fileID: 8661973151646345823}
