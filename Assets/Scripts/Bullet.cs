@@ -20,10 +20,10 @@ public class Bullet : MonoBehaviour
         no = GetComponent<NetworkObject>();
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnCollisionEnter2D(Collision2D col)
     {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Wall") ||
-            collision.gameObject.layer == LayerMask.NameToLayer("Player"))
+        if (col.gameObject.layer == LayerMask.NameToLayer("Wall") ||
+            col.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
             CreateExplosionServerRpc(transform.position);
         }

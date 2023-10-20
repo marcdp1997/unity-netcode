@@ -4,6 +4,7 @@ using UnityEngine;
 using MyUtils;
 using Unity.Netcode;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -19,6 +20,10 @@ public class PlayerController : NetworkBehaviour
 
     private NetworkVariable<ushort> currHearts;
     private float shootCd;
+    private PlayerInput playerInput;
+    private PlayerInputActions playerInputActions;
+    private bool usingGamepad;
+    private Vector3 prevAimDirection;
 
     private void Awake()
     {
@@ -26,6 +31,13 @@ public class PlayerController : NetworkBehaviour
                 NetworkVariableWritePermission.Server);
 
         if (!IsServer) currHearts.OnValueChanged += UpdateHearts;
+
+        playerInput = GetComponent<PlayerInput>();
+        playerInput.onControlsChanged += ChangeControls;
+
+        playerInputActions = new PlayerInputActions();
+        playerInputActions.Player.Enable();
+        playerInputActions.Player.Shoot.performed += Shoot;
     }
 
     private void Update()
@@ -33,15 +45,14 @@ public class PlayerController : NetworkBehaviour
         if (!IsOwner) return;
 
         UpdateTimers();
-        AttemptToShoot();
-        CheckMovement();
-        AimGun();
+        Move();
+        Aim();
         UpdateSight();
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnCollisionEnter2D(Collision2D col)
     {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Bullet"))
+        if (col.gameObject.layer == LayerMask.NameToLayer("Bullet"))
         {
             LoseHeart();
         }
@@ -52,19 +63,32 @@ public class PlayerController : NetworkBehaviour
         shootCd -= Time.deltaTime;
     }
 
-    private void CheckMovement()
+    private void Move()
     {
-        Vector3 movement = new Vector3(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"), 0).normalized * speed * Time.deltaTime;
+        Vector3 movement = playerInputActions.Player.Movement.ReadValue<Vector2>();
+        movement = speed * Time.deltaTime * movement.normalized;
         transform.position += movement;
     }
 
-    private void AimGun()
+    private void Aim()
     {
-        Vector3 direction = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
+        Vector3 direction;
+
+        if (!usingGamepad)
+        {
+            direction = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
+        }
+        else
+        {
+            direction = playerInputActions.Player.Aim.ReadValue<Vector2>();
+            if (direction == Vector3.zero) direction = prevAimDirection;
+        }
+
         float angle = Utils.GetAngleFromVector(direction);
         gunRoot.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
-
         gunRoot.localScale = new Vector3(1, angle > 90 && angle < 270 ? -1 : 1, 1);
+
+        prevAimDirection = direction;
     }
 
     public void LoseHeart()
@@ -84,9 +108,9 @@ public class PlayerController : NetworkBehaviour
         heartsFill[prevValue - 1].SetActive(false);
     }
 
-    private void AttemptToShoot()
+    private void Shoot(InputAction.CallbackContext context)
     {
-        if (Input.GetMouseButtonDown(0) && shootCd <= 0)
+        if (context.performed && shootCd <= 0)
         {
             SpawnBulletServerRpc(firePoint.position, firePoint.right, bulletSpeed);
             shootCd = fireRate;
@@ -104,6 +128,16 @@ public class PlayerController : NetworkBehaviour
         hitPos.z = 0;
 
         lineSight.SetPosition(1, hitPos);
+    }
+
+    private void ChangeControls(PlayerInput pi)
+    {
+        usingGamepad = pi.currentControlScheme == "Gamepad";
+
+        if (usingGamepad) Cursor.lockState = CursorLockMode.Locked;
+        else Cursor.lockState = CursorLockMode.Confined;
+
+        Cursor.visible = !usingGamepad;
     }
 
     // RPCs are reliable by default. This means they're guaranteed to be received and
