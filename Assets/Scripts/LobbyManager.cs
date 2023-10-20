@@ -1,4 +1,4 @@
-using System.Collections;
+
 using System.Collections.Generic;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
@@ -10,8 +10,10 @@ public class LobbyManager : MonoBehaviour
 {
     private Lobby hostLobby;
     private float heartbeatTimer;
+    private float updateLobbiesTimer;
 
-    private const int LobbyMaxPlayers = 4;
+    private const float UpdateLobbiesTime = 1;
+    private const int LobbyMaxPlayers = 2;
     private const float HeartbeatTime = 15;
     private const string KeyJoinCode = "RelayCode";
 
@@ -30,13 +32,19 @@ public class LobbyManager : MonoBehaviour
 
     private void Update()
     {
+        if ((updateLobbiesTimer -= Time.deltaTime) < 0)
+        {
+            updateLobbiesTimer = UpdateLobbiesTime;
+            CheckLobbies();
+        }
+
         // If a lobby does not receive data in 30 sec it became inactive, which means
         // new players can't find it. However, players that are already in the lobby
         // can get data. To keep it alive while players try to join, we send heartbeats:
-        HandleLobbyHeartbeat();
+        HandleHostLobbyHeartbeat();
     }
 
-    private async void HandleLobbyHeartbeat()
+    private async void HandleHostLobbyHeartbeat()
     {
         if (hostLobby == null) return;
 
@@ -71,14 +79,25 @@ public class LobbyManager : MonoBehaviour
         }
     }
 
-    public async void QuickJoinLobby()
+    public async void CheckLobbies()
     {
         try
         {
-            // Join lobby
-            Lobby joinedLobby = await LobbyService.Instance.QuickJoinLobbyAsync();
+            QueryResponse queryResponse = await Lobbies.Instance.QueryLobbiesAsync();
+            GameUIManager.Instance.ShowLobbies(queryResponse.Results);
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.Log(e);
+        }
+    }
 
-            // Get code from lobby and join relay
+    public async void JoinLobby(string id)
+    {
+        try
+        {
+            // Join lobby, get code and join relay
+            Lobby joinedLobby = await LobbyService.Instance.JoinLobbyByIdAsync(id);
             RelayManager.Instance.JoinRelay(joinedLobby.Data[KeyJoinCode].Value);
         }
         catch (LobbyServiceException e)
