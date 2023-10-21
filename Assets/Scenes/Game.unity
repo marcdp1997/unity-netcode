@@ -775,6 +775,8 @@ GameObject:
   - component: {fileID: 530094802}
   - component: {fileID: 530094801}
   - component: {fileID: 530094800}
+  - component: {fileID: 530094803}
+  - component: {fileID: 530094804}
   m_Layer: 0
   m_Name: Event System
   m_TagString: Untagged
@@ -835,7 +837,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_FirstSelected: {fileID: 0}
+  m_FirstSelected: {fileID: 939895035}
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
 --- !u!4 &530094802
@@ -853,6 +855,73 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &530094803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 530094799}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Actions: {fileID: -944628639613478452, guid: 2f9905f472ff99d429b0bce58b948959,
+    type: 3}
+  m_NotificationBehavior: 3
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents:
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: f342ce6d-0a14-4e1b-8a9a-ed6edf44fef2
+    m_ActionName: Player/Shoot[/XInputControllerWindows/rightTrigger,/Mouse/leftButton]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 1343017d-5200-4a16-b9f2-ec2c6660d8cb
+    m_ActionName: Player/Movement[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d,/XInputControllerWindows/leftStick]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: d0fb2158-afdf-4b59-889c-0f3fb7c8648f
+    m_ActionName: Player/Aim[/XInputControllerWindows/rightStick]
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: Player
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
+--- !u!114 &530094804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 530094799}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f353002253ba1614d95b20c8f3b3e2f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &618938059
 GameObject:
   m_ObjectHideFlags: 0
@@ -1537,8 +1606,8 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_NormalColor: {r: 0.7169812, g: 0.7169812, b: 0.7169812, a: 1}
+    m_HighlightedColor: {r: 1, g: 1, b: 1, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
@@ -2762,7 +2831,7 @@ PrefabInstance:
     - target: {fileID: 4241122190071840273, guid: 8cbfc138839200b4eb9114efb4944ed7,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4241122190071840273, guid: 8cbfc138839200b4eb9114efb4944ed7,
         type: 3}
@@ -2772,7 +2841,7 @@ PrefabInstance:
     - target: {fileID: 4241122190071840273, guid: 8cbfc138839200b4eb9114efb4944ed7,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4241122190071840273, guid: 8cbfc138839200b4eb9114efb4944ed7,
         type: 3}
@@ -2822,12 +2891,12 @@ PrefabInstance:
     - target: {fileID: 4241122190071840273, guid: 8cbfc138839200b4eb9114efb4944ed7,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 288.1408
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4241122190071840273, guid: 8cbfc138839200b4eb9114efb4944ed7,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -30
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4241122190071840273, guid: 8cbfc138839200b4eb9114efb4944ed7,
         type: 3}
@@ -2847,72 +2916,67 @@ PrefabInstance:
     - target: {fileID: 4517956827931914117, guid: 8cbfc138839200b4eb9114efb4944ed7,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4517956827931914117, guid: 8cbfc138839200b4eb9114efb4944ed7,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4517956827931914117, guid: 8cbfc138839200b4eb9114efb4944ed7,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 430.50452
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4517956827931914117, guid: 8cbfc138839200b4eb9114efb4944ed7,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -29.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7718986725662234869, guid: 8cbfc138839200b4eb9114efb4944ed7,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7718986725662234869, guid: 8cbfc138839200b4eb9114efb4944ed7,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7718986725662234869, guid: 8cbfc138839200b4eb9114efb4944ed7,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 287.18927
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7718986725662234869, guid: 8cbfc138839200b4eb9114efb4944ed7,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -29.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8773200858852411207, guid: 8cbfc138839200b4eb9114efb4944ed7,
         type: 3}
       propertyPath: m_Name
       value: Lobby
       objectReference: {fileID: 0}
-    - target: {fileID: 8773200858852411207, guid: 8cbfc138839200b4eb9114efb4944ed7,
+    - target: {fileID: 9085609168668376910, guid: 8cbfc138839200b4eb9114efb4944ed7,
         type: 3}
-      propertyPath: m_IsActive
+      propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9085609168668376910, guid: 8cbfc138839200b4eb9114efb4944ed7,
         type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 9085609168668376910, guid: 8cbfc138839200b4eb9114efb4944ed7,
-        type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9085609168668376910, guid: 8cbfc138839200b4eb9114efb4944ed7,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 106.18475
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9085609168668376910, guid: 8cbfc138839200b4eb9114efb4944ed7,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -29.5
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

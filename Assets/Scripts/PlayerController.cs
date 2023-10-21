@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using MyUtils;
 using Unity.Netcode;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public class PlayerController : NetworkBehaviour
@@ -22,9 +21,7 @@ public class PlayerController : NetworkBehaviour
     private NetworkVariable<ushort> currHearts;
 
     private float shootCd;
-    private PlayerInput playerInput;
     private PlayerInputActions playerInputActions;
-    private bool usingGamepad;
     private Vector3 prevAimDirection;
     private SpriteRenderer spriteRenderer;
 
@@ -43,13 +40,7 @@ public class PlayerController : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        if (IsOwner)
-        {
-            playerInput = GetComponent<PlayerInput>();
-            playerInput.enabled = true;
-            playerInput.onControlsChanged += ChangeControls;
-            playerInputActions.Player.Shoot.performed += Shoot;
-        }
+        if (IsOwner) playerInputActions.Player.Shoot.performed += Shoot;
 
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         spriteRenderer.color = lineSight.startColor = lineSight.endColor = playerColors[(int)OwnerClientId];
@@ -62,11 +53,7 @@ public class PlayerController : NetworkBehaviour
         playerInputActions.Player.Disable();
         currHearts.OnValueChanged -= UpdateHearts;
 
-        if (IsOwner)
-        {
-            playerInputActions.Player.Shoot.performed -= Shoot;
-            playerInput.onControlsChanged -= ChangeControls;
-        }
+        if (IsOwner) playerInputActions.Player.Shoot.performed -= Shoot;
     }
 
     private void Update()
@@ -106,7 +93,7 @@ public class PlayerController : NetworkBehaviour
     {
         Vector3 direction;
 
-        if (!usingGamepad)
+        if (!InputManager.Instance.IsUsingGamepad())
         {
             direction = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
         }
@@ -162,15 +149,7 @@ public class PlayerController : NetworkBehaviour
         lineSight.SetPosition(1, hitPos);
     }
 
-    private void ChangeControls(PlayerInput pi)
-    {
-        usingGamepad = pi.currentControlScheme == "Gamepad";
 
-        if (usingGamepad) Cursor.lockState = CursorLockMode.Locked;
-        else Cursor.lockState = CursorLockMode.Confined;
-
-        Cursor.visible = !usingGamepad;
-    }
 
     // RPCs are reliable by default. This means they're guaranteed to be received and
     // executed on the remote side. However, sometimes developers might want to opt-out
