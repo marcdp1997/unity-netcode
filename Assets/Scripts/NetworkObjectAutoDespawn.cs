@@ -4,7 +4,7 @@ using Unity.Netcode;
 using UnityEngine;
 
 [RequireComponent(typeof(NetworkObject))]
-public class NetworkObjectAutoDespawn : MonoBehaviour
+public class NetworkObjectAutoDespawn : NetworkBehaviour
 {
     [SerializeField] private float delayTime;
     private NetworkObject no;
@@ -12,11 +12,16 @@ public class NetworkObjectAutoDespawn : MonoBehaviour
     private void Awake()
     {
         no = GetComponent<NetworkObject>();
-        Invoke(nameof(DespawnServerRpc), delayTime);
+        Invoke(nameof(Despawn), delayTime);
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void DespawnServerRpc()
+    private void Despawn()
+    {
+        if (IsServer) DespawnServerRpc();
+    }
+
+    [ServerRpc]
+    private void DespawnServerRpc()
     {
         no.Despawn(true);
     }

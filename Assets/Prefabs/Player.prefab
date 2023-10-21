@@ -366,7 +366,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -387,6 +387,7 @@ GameObject:
   - component: {fileID: 5939045835973116498}
   - component: {fileID: -7183196156404003793}
   - component: {fileID: 3783477214209383249}
+  - component: {fileID: 5636082213954048658}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -421,7 +422,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4606350942821595981}
-  m_BodyType: 0
+  m_BodyType: 2
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -453,8 +454,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 6
-  fireRate: 0.25
-  bulletSpeed: 25
+  fireRate: 0.5
+  bulletSpeed: 20
   gunRoot: {fileID: 4345095195581158736}
   firePoint: {fileID: 5679925318234147196}
   hitbox: {fileID: 1318296210440966126}
@@ -582,6 +583,41 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!70 &5636082213954048658
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4606350942821595981}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_Size: {x: 0.5, y: 0.88}
+  m_Direction: 0
 --- !u!1 &5668673227322242354
 GameObject:
   m_ObjectHideFlags: 0
@@ -688,10 +724,20 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8316428174428723785}
     m_Modifications:
+    - target: {fileID: 2040205764489913278, guid: b96ebedd153c6f44d8e0047e138d6154,
+        type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3449996280802272919, guid: b96ebedd153c6f44d8e0047e138d6154,
         type: 3}
       propertyPath: m_Name
       value: Heart
+      objectReference: {fileID: 0}
+    - target: {fileID: 8355679893061790752, guid: b96ebedd153c6f44d8e0047e138d6154,
+        type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9219886442580714106, guid: b96ebedd153c6f44d8e0047e138d6154,
         type: 3}
@@ -773,10 +819,20 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2040205764489913278, guid: b96ebedd153c6f44d8e0047e138d6154,
+        type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3449996280802272919, guid: b96ebedd153c6f44d8e0047e138d6154,
         type: 3}
       propertyPath: m_Name
       value: Heart (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8355679893061790752, guid: b96ebedd153c6f44d8e0047e138d6154,
+        type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9219886442580714106, guid: b96ebedd153c6f44d8e0047e138d6154,
         type: 3}
@@ -853,10 +909,20 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8316428174428723785}
     m_Modifications:
+    - target: {fileID: 2040205764489913278, guid: b96ebedd153c6f44d8e0047e138d6154,
+        type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3449996280802272919, guid: b96ebedd153c6f44d8e0047e138d6154,
         type: 3}
       propertyPath: m_Name
       value: Heart (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8355679893061790752, guid: b96ebedd153c6f44d8e0047e138d6154,
+        type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9219886442580714106, guid: b96ebedd153c6f44d8e0047e138d6154,
         type: 3}

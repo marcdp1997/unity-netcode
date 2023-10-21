@@ -5,7 +5,7 @@ using MyUtils;
 using Unity.Netcode;
 using UnityEditor;
 
-public class Bullet : MonoBehaviour
+public class Bullet : NetworkBehaviour
 {
     [SerializeField] private Collider2D col;
     [SerializeField] private GameObject explosionPrefab;
@@ -13,6 +13,7 @@ public class Bullet : MonoBehaviour
     private Rigidbody2D rb;
     private NetworkObject no;
     private NetworkObject explosion;
+    private bool collided;
 
     private void Awake()
     {
@@ -22,8 +23,20 @@ public class Bullet : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D col)
     {
-        if (col.gameObject.layer == LayerMask.NameToLayer("Wall") ||
-            col.gameObject.layer == LayerMask.NameToLayer("Player"))
+        if (!IsServer && !collided) return;
+
+        if (col.gameObject.layer == LayerMask.NameToLayer("Wall"))
+        {
+            collided = true;
+            CreateExplosionServerRpc(transform.position);
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D col)
+    {
+        if (!IsServer) return;
+
+        if (col.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
             CreateExplosionServerRpc(transform.position);
         }
@@ -35,7 +48,7 @@ public class Bullet : MonoBehaviour
         transform.rotation = Quaternion.Euler(new Vector3(0, 0, Utils.GetAngleFromVector(direction)));
     }
 
-    [ServerRpc(Delivery = RpcDelivery.Unreliable, RequireOwnership = false)]
+    [ServerRpc(Delivery = RpcDelivery.Unreliable)]
     private void CreateExplosionServerRpc(Vector3 position)
     {
         GameObject go = Instantiate(explosionPrefab, position, Quaternion.identity);

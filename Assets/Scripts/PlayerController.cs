@@ -30,7 +30,7 @@ public class PlayerController : NetworkBehaviour
         currHearts = new NetworkVariable<ushort>((ushort)heartsFill.Count, NetworkVariableReadPermission.Everyone,
                 NetworkVariableWritePermission.Server);
 
-        if (!IsServer) currHearts.OnValueChanged += UpdateHearts;
+        currHearts.OnValueChanged += UpdateHearts;
 
         playerInput = GetComponent<PlayerInput>();
         playerInput.onControlsChanged += ChangeControls;
@@ -50,12 +50,15 @@ public class PlayerController : NetworkBehaviour
         UpdateSight();
     }
 
-    private void OnCollisionEnter2D(Collision2D col)
+    private void OnTriggerEnter2D(Collider2D col)
     {
+        // Not only the owner has to check if a bullet collides with himself.
+        // Only server can write to currHearts variable. When server changes its value,
+        // everyone will call OnValueChanged and update the hearts.
+        if (!IsServer) return;
+
         if (col.gameObject.layer == LayerMask.NameToLayer("Bullet"))
-        {
             LoseHeart();
-        }
     }
 
     private void UpdateTimers()
@@ -99,7 +102,7 @@ public class PlayerController : NetworkBehaviour
 
         if (currHearts.Value == 0)
         {
-            //lose
+            PlayerDeadServerRpc();
         }
     }
 
@@ -147,9 +150,32 @@ public class PlayerController : NetworkBehaviour
     [ServerRpc(Delivery = RpcDelivery.Reliable, RequireOwnership = false)]
     private void SpawnBulletServerRpc(Vector3 position, Vector3 direction, float speed)
     {
+        if (!IsServer) return;
+
         Bullet bullet = Instantiate(bulletPrefab, position, Quaternion.identity).GetComponent<Bullet>();
         bullet.gameObject.GetComponent<NetworkObject>().Spawn(true);
         bullet.Shoot(direction, speed);
         Physics2D.IgnoreCollision(bullet.GetCollider(), hitbox);
+    }
+
+    [ServerRpc(Delivery = RpcDelivery.Reliable, RequireOwnership = false)]
+    private void PlayerDeadServerRpc()
+    {
+        CheckWinOrLose();
+        PlayerDeadClientRpc();
+    }
+
+    [ClientRpc(Delivery = RpcDelivery.Reliable)]
+    private void PlayerDeadClientRpc()
+    {
+        CheckWinOrLose();
+    }
+
+    private void CheckWinOrLose()
+    {
+        if (!IsOwner) GameUIManager.Instance.EnableWinScreen();
+        else GameUIManager.Instance.EnableLoseScreen();
+
+        playerInputActions.Player.Disable();
     }
 }
