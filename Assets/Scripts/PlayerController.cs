@@ -20,6 +20,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private List<Color> playerColors;
 
     private NetworkVariable<ushort> currHearts;
+
     private float shootCd;
     private PlayerInput playerInput;
     private PlayerInputActions playerInputActions;
@@ -34,15 +35,38 @@ public class PlayerController : NetworkBehaviour
 
         currHearts.OnValueChanged += UpdateHearts;
 
-        playerInput = GetComponent<PlayerInput>();
-        playerInput.onControlsChanged += ChangeControls;
-
         playerInputActions = new PlayerInputActions();
         playerInputActions.Player.Enable();
-        playerInputActions.Player.Shoot.performed += Shoot;
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        if (IsOwner)
+        {
+            playerInput = GetComponent<PlayerInput>();
+            playerInput.enabled = true;
+            playerInput.onControlsChanged += ChangeControls;
+            playerInputActions.Player.Shoot.performed += Shoot;
+        }
 
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         spriteRenderer.color = lineSight.startColor = lineSight.endColor = playerColors[(int)OwnerClientId];
+    }
+
+    public override void OnDestroy()
+    {
+        base.OnDestroy();
+
+        playerInputActions.Player.Disable();
+        currHearts.OnValueChanged -= UpdateHearts;
+
+        if (IsOwner)
+        {
+            playerInputActions.Player.Shoot.performed -= Shoot;
+            playerInput.onControlsChanged -= ChangeControls;
+        }
     }
 
     private void Update()
@@ -166,6 +190,8 @@ public class PlayerController : NetworkBehaviour
     [ServerRpc(Delivery = RpcDelivery.Reliable, RequireOwnership = false)]
     private void PlayerDeadServerRpc()
     {
+        NetworkManager.Singleton.Shutdown();
+
         // Only server check the win or lose condition and sends to all clients.
         // If the one who send this Rpc is the owner (aka your player) that means
         // you died. If not, the other player in the server died, so you won.
@@ -183,7 +209,5 @@ public class PlayerController : NetworkBehaviour
     {
         if (!IsOwner) GameUIManager.Instance.EnableWinScreen();
         else GameUIManager.Instance.EnableLoseScreen();
-
-        playerInputActions.Player.Disable();
     }
 }

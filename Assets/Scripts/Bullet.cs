@@ -21,25 +21,24 @@ public class Bullet : NetworkBehaviour
         no = GetComponent<NetworkObject>();
     }
 
-    private void OnCollisionEnter2D(Collision2D col)
+    private void OnCollisionEnter2D(Collision2D collider)
+    {
+        if (collider.gameObject.layer == LayerMask.NameToLayer("Wall")) 
+            CheckCollision();
+    }
+
+    private void OnTriggerEnter2D(Collider2D collider)
+    {
+        if (collider.gameObject.layer == LayerMask.NameToLayer("Player")) 
+            CheckCollision();
+    }
+
+    private void CheckCollision()
     {
         if (!IsServer && !collided) return;
 
-        if (col.gameObject.layer == LayerMask.NameToLayer("Wall"))
-        {
-            collided = true;
-            CreateExplosionServerRpc(transform.position);
-        }
-    }
-
-    private void OnTriggerEnter2D(Collider2D col)
-    {
-        if (!IsServer) return;
-
-        if (col.gameObject.layer == LayerMask.NameToLayer("Player"))
-        {
-            CreateExplosionServerRpc(transform.position);
-        }
+        collided = true;
+        CreateExplosionServerRpc(transform.position);
     }
 
     public void Shoot(Vector3 direction, float speed)

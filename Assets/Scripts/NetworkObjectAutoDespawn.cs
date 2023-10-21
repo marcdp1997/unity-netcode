@@ -12,12 +12,12 @@ public class NetworkObjectAutoDespawn : NetworkBehaviour
     private void Awake()
     {
         no = GetComponent<NetworkObject>();
-        Invoke(nameof(Despawn), delayTime);
     }
 
-    private void Despawn()
+    public override void OnNetworkSpawn()
     {
-        if (IsServer) DespawnServerRpc();
+        base.OnNetworkSpawn();
+        if (IsServer) Invoke(nameof(DespawnServerRpc), delayTime);
     }
 
     [ServerRpc]

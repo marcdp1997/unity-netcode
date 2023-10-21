@@ -4,6 +4,7 @@ using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Unity.Netcode;
 
 public class GameUIManager : MonoBehaviour
 {
@@ -58,7 +59,7 @@ public class GameUIManager : MonoBehaviour
 
     private void GoBackToMenu()
     {
-        SceneManager.Instance.LoadScene(Scene.MainMenu);
+        SceneManager.Instance.LoadScene(Scene.Menu);
     }
 
     public void ShowLobbies(List<Lobby> lobbies)

@@ -1,7 +1,5 @@
 
 using System.Collections.Generic;
-using Unity.Services.Authentication;
-using Unity.Services.Core;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
@@ -25,9 +23,25 @@ public class LobbyManager : MonoBehaviour
         Instance = this;
     }
 
+    private async void OnDestroy()
+    {
+        try
+        {
+            QueryResponse queryResponse = await Lobbies.Instance.QueryLobbiesAsync();
+            foreach(Lobby lobby in queryResponse.Results)
+            {
+                await LobbyService.Instance.DeleteLobbyAsync(lobby.Id);
+            }
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.Log(e);
+        }
+    }
+
     private void Update()
     {
-        if ((updateLobbiesTimer -= Time.deltaTime) < 0)
+        if (joinedLobby == null && (updateLobbiesTimer -= Time.deltaTime) < 0)
         {
             updateLobbiesTimer = UpdateLobbiesTime;
             CheckLobbies();
@@ -66,7 +80,7 @@ public class LobbyManager : MonoBehaviour
                 }
             };
 
-            joinedLobby = await LobbyService.Instance.CreateLobbyAsync("MyLobby " + Random.Range(1, 99), LobbyMaxPlayers, options);
+            joinedLobby = await LobbyService.Instance.CreateLobbyAsync("My Lobby", LobbyMaxPlayers, options);
             isHost = true;
         }
         catch (LobbyServiceException e)
@@ -80,11 +94,6 @@ public class LobbyManager : MonoBehaviour
         try
         {
             QueryResponse queryResponse = await Lobbies.Instance.QueryLobbiesAsync();
-
-            foreach(Lobby lobby in queryResponse.Results)
-                if (lobby.Players.Count == 0)
-                    await Lobbies.Instance.DeleteLobbyAsync(lobby.Id);
-
             GameUIManager.Instance.ShowLobbies(queryResponse.Results);
         }
         catch (LobbyServiceException e)

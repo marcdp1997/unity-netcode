@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum Scene { MainMenu, Game, Final }
+public enum Scene { Menu, Game }
 
 public class SceneManager : MonoBehaviour
 {
