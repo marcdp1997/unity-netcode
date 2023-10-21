@@ -17,6 +17,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private LineRenderer lineSight;
     [SerializeField] private List<GameObject> heartsFill;
+    [SerializeField] private List<Color> playerColors;
 
     private NetworkVariable<ushort> currHearts;
     private float shootCd;
@@ -24,6 +25,7 @@ public class PlayerController : NetworkBehaviour
     private PlayerInputActions playerInputActions;
     private bool usingGamepad;
     private Vector3 prevAimDirection;
+    private SpriteRenderer spriteRenderer;
 
     private void Awake()
     {
@@ -38,6 +40,9 @@ public class PlayerController : NetworkBehaviour
         playerInputActions = new PlayerInputActions();
         playerInputActions.Player.Enable();
         playerInputActions.Player.Shoot.performed += Shoot;
+
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        spriteRenderer.color = lineSight.startColor = lineSight.endColor = playerColors[(int)OwnerClientId];
     }
 
     private void Update()
@@ -161,6 +166,9 @@ public class PlayerController : NetworkBehaviour
     [ServerRpc(Delivery = RpcDelivery.Reliable, RequireOwnership = false)]
     private void PlayerDeadServerRpc()
     {
+        // Only server check the win or lose condition and sends to all clients.
+        // If the one who send this Rpc is the owner (aka your player) that means
+        // you died. If not, the other player in the server died, so you won.
         CheckWinOrLose();
         PlayerDeadClientRpc();
     }

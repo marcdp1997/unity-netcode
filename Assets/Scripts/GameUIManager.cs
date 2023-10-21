@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class GameUIManager : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class GameUIManager : MonoBehaviour
     [SerializeField] private CanvasGroup winCG;
     [SerializeField] private CanvasGroup loseCG;
     [SerializeField] private Button createLobbyBtn;
+    [SerializeField] private TextMeshProUGUI numLobbiesText;
     [SerializeField] private List<LobbyUI> lobbiesUI;
 
     private const float ReturnMenuDelayTime = 3;
@@ -20,7 +22,7 @@ public class GameUIManager : MonoBehaviour
         Instance = this;
 
         EnableScreen(false, lobbyCG);
-        Invoke(nameof(EnableLobbyScreen), 0.5f);
+        Invoke(nameof(EnableLobbyScreen), 0.2f);
 
         EnableScreen(false, winCG);
         EnableScreen(false, loseCG);
@@ -61,6 +63,8 @@ public class GameUIManager : MonoBehaviour
 
     public void ShowLobbies(List<Lobby> lobbies)
     {
+        numLobbiesText.text = lobbies.Count + " lobbies found:";
+
         // Disable all lobbiesUI
         for (int i = 0; i < lobbiesUI.Count; i++)
             lobbiesUI[i].gameObject.SetActive(false);

@@ -8,9 +8,10 @@ using UnityEngine;
 
 public class LobbyManager : MonoBehaviour
 {
-    private Lobby hostLobby;
+    private bool isHost;
     private float heartbeatTimer;
     private float updateLobbiesTimer;
+    private Lobby joinedLobby;
 
     private const float UpdateLobbiesTime = 1;
     private const int LobbyMaxPlayers = 2;
@@ -22,12 +23,6 @@ public class LobbyManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-    }
-
-    private async void Start()
-    {
-        await UnityServices.InitializeAsync();
-        await AuthenticationService.Instance.SignInAnonymouslyAsync();
     }
 
     private void Update()
@@ -46,12 +41,12 @@ public class LobbyManager : MonoBehaviour
 
     private async void HandleHostLobbyHeartbeat()
     {
-        if (hostLobby == null) return;
+        if (!isHost) return;
 
         if ((heartbeatTimer -= Time.deltaTime) < 0)
         {
             heartbeatTimer = HeartbeatTime;
-            await LobbyService.Instance.SendHeartbeatPingAsync(hostLobby.Id);
+            await LobbyService.Instance.SendHeartbeatPingAsync(joinedLobby.Id);
         }
     }
 
@@ -71,7 +66,8 @@ public class LobbyManager : MonoBehaviour
                 }
             };
 
-            hostLobby = await LobbyService.Instance.CreateLobbyAsync(name, LobbyMaxPlayers, options);
+            joinedLobby = await LobbyService.Instance.CreateLobbyAsync("MyLobby " + Random.Range(1, 99), LobbyMaxPlayers, options);
+            isHost = true;
         }
         catch (LobbyServiceException e)
         {
@@ -84,6 +80,11 @@ public class LobbyManager : MonoBehaviour
         try
         {
             QueryResponse queryResponse = await Lobbies.Instance.QueryLobbiesAsync();
+
+            foreach(Lobby lobby in queryResponse.Results)
+                if (lobby.Players.Count == 0)
+                    await Lobbies.Instance.DeleteLobbyAsync(lobby.Id);
+
             GameUIManager.Instance.ShowLobbies(queryResponse.Results);
         }
         catch (LobbyServiceException e)
@@ -97,7 +98,7 @@ public class LobbyManager : MonoBehaviour
         try
         {
             // Join lobby, get code and join relay
-            Lobby joinedLobby = await LobbyService.Instance.JoinLobbyByIdAsync(id);
+            joinedLobby = await LobbyService.Instance.JoinLobbyByIdAsync(id);
             RelayManager.Instance.JoinRelay(joinedLobby.Data[KeyJoinCode].Value);
         }
         catch (LobbyServiceException e)

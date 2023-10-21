@@ -9,6 +9,7 @@ public class LobbyUI : MonoBehaviour
 {
     [SerializeField] private Button joinButton;
     [SerializeField] private TextMeshProUGUI nameText;
+    [SerializeField] private TextMeshProUGUI playersText;
 
     private string lobbyId;
 
@@ -24,6 +25,7 @@ public class LobbyUI : MonoBehaviour
     public void SetInfo(Lobby lobby)
     {
         lobbyId = lobby.Id;
-        nameText.text = name;
+        nameText.text = lobby.Name;
+        playersText.text = lobby.Players.Count + "/" + lobby.MaxPlayers;
     }
 }
