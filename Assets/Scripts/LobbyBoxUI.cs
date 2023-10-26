@@ -1,13 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LobbyUI : MonoBehaviour
+public class LobbyBoxUI : MonoBehaviour
 {
-    [SerializeField] private Button joinButton;
+    [SerializeField] private Button joinLobbyButton;
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI playersText;
 
@@ -15,10 +13,9 @@ public class LobbyUI : MonoBehaviour
 
     private void Awake()
     {
-        joinButton.onClick.AddListener(() =>
+        joinLobbyButton.onClick.AddListener(() =>
         {
-            LobbyManager.Instance.JoinLobby(lobbyId);
-            GameUIManager.Instance.DisableLobbyScreen();
+            LobbyManager.Instance.JoinLobbyById(lobbyId);
         });
     }
 

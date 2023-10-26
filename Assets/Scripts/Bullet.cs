@@ -1,9 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using MyUtils;
 using Unity.Netcode;
-using UnityEditor;
+using MyUtils;
 
 public class Bullet : NetworkBehaviour
 {

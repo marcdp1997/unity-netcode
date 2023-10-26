@@ -5,12 +5,6 @@ using Unity.Services.Relay;
 using Unity.Networking.Transport.Relay;
 using Unity.Netcode.Transports.UTP;
 using System.Threading.Tasks;
-using Unity.Services.Authentication;
-using Unity.Services.Core;
-
-#if UNITY_EDITOR
-using ParrelSync;
-#endif
 
 public class RelayManager : MonoBehaviour
 {
@@ -18,32 +12,7 @@ public class RelayManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
         Instance = this;
-        DontDestroyOnLoad(this);
-    }
-
-    private async void Start()
-    {
-        await UnityServices.InitializeAsync();
-
-        // ParrelSync should only be used within the Unity Editor so you should use the UNITY_EDITOR define
-#if UNITY_EDITOR
-        if (ClonesManager.IsClone())
-        {
-            // When using a ParrelSync clone, switch to a different authentication profile to force the clone
-            // to sign in as a different anonymous user account.
-            string customArgument = ClonesManager.GetArgument();
-            AuthenticationService.Instance.SwitchProfile($"Clone_{customArgument}_Profile");
-        }
-#endif
-
-        await AuthenticationService.Instance.SignInAnonymouslyAsync();
     }
 
     public async Task<string> CreateRelay()

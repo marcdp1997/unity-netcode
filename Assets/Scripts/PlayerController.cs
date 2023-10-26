@@ -1,9 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using MyUtils;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
+using Arrowfist.Managers;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -19,7 +19,6 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private List<Color> playerColors;
 
     private NetworkVariable<ushort> currHearts;
-
     private float shootCd;
     private PlayerInputActions playerInputActions;
     private Vector3 prevAimDirection;
@@ -149,8 +148,6 @@ public class PlayerController : NetworkBehaviour
         lineSight.SetPosition(1, hitPos);
     }
 
-
-
     // RPCs are reliable by default. This means they're guaranteed to be received and
     // executed on the remote side. However, sometimes developers might want to opt-out
     // reliability, which is often the case for non-critical events such as particle
@@ -169,8 +166,6 @@ public class PlayerController : NetworkBehaviour
     [ServerRpc(Delivery = RpcDelivery.Reliable, RequireOwnership = false)]
     private void PlayerDeadServerRpc()
     {
-        NetworkManager.Singleton.Shutdown();
-
         // Only server check the win or lose condition and sends to all clients.
         // If the one who send this Rpc is the owner (aka your player) that means
         // you died. If not, the other player in the server died, so you won.
@@ -181,12 +176,15 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc(Delivery = RpcDelivery.Reliable)]
     private void PlayerDeadClientRpc()
     {
+        // Host is client and server and we alredy published the event in serverRpc.
+        // We could also do all checking here in clientRPC and remove the condition.
+        if (IsServer) return;
         CheckWinOrLose();
     }
 
     private void CheckWinOrLose()
     {
-        if (!IsOwner) GameUIManager.Instance.EnableWinScreen();
-        else GameUIManager.Instance.EnableLoseScreen();
+        NetworkManager.Singleton.Shutdown();
+        EventManager.Instance.Publish(new OnGameEndedEventData(!IsOwner));
     }
 }
