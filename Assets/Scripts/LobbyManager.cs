@@ -208,36 +208,6 @@ public class LobbyManager : MonoBehaviour
         }
     }
 
-    private async void DestroyAllLobbies()
-    {
-        try
-        {
-            QueryResponse queryResponse = await Lobbies.Instance.QueryLobbiesAsync();
-            foreach (Lobby lobby in queryResponse.Results)
-            {
-                await LobbyService.Instance.DeleteLobbyAsync(lobby.Id);
-            }
-        }
-        catch (LobbyServiceException e)
-        {
-            Debug.Log(e);
-        }
-    }
-
-    public async void KickPlayer(string playerId)
-    {
-        if (!IsLobbyHost()) return;
-
-        try
-        {
-            await Lobbies.Instance.RemovePlayerAsync(joinedLobby.Id, playerId);
-        }
-        catch (LobbyServiceException e)
-        {
-            Debug.Log(e);
-        }
-    }
-
     public async void LeaveLobby()
     {
         if (joinedLobby == null) return;
@@ -245,6 +215,7 @@ public class LobbyManager : MonoBehaviour
         try
         {
             await Lobbies.Instance.RemovePlayerAsync(joinedLobby.Id, AuthenticationService.Instance.PlayerId);
+            EventManager.Instance.Publish(new EventData(EventIds.OnLobbyLeft));
             joinedLobby = null;
         }
         catch (LobbyServiceException e)

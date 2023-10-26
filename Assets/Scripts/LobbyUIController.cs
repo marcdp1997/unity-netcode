@@ -118,7 +118,6 @@ public class LobbyUIController : MonoBehaviour
 
         List<Player> players = ((OnLobbyJoinedUpdatedEventData)eventData).Lobby.Players;
         string keyPlayerName = LobbyManager.KeyPlayerName;
-        lobbyName.text = players[0].Data[keyPlayerName].Value.ToString() + "'s Lobby";
 
         foreach (Transform child in playerBoxUI.transform.parent)
             if (child != playerBoxUI.transform) Destroy(child.gameObject);

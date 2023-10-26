@@ -1,24 +1,34 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class AuthenticationUIController : MonoBehaviour
 {
     [SerializeField] private CanvasGroup authenticateScreen;
-    [SerializeField] private TMP_InputField playerName;
     [SerializeField] private Button authenticateBtn;
+    [SerializeField] private InputWindowUI inputWindow;
 
     private void Awake()
     {
         authenticateBtn.onClick.AddListener(AuthenticateClick);
+        inputWindow.onSave.AddListener(InputWindowSaveClick);
     }
 
     private void AuthenticateClick()
     {
-        if (string.IsNullOrEmpty(playerName.text))
-            playerName.text = "Player" + Random.Range(10, 100);
+        inputWindow.Show("Enter your name");
+    }
 
-        LobbyManager.Instance.Authenticate(playerName.text);
+    private void InputWindowSaveClick(string playerName)
+    {
+        Authenticate(playerName);
+    }
+
+    private void Authenticate(string playerName)
+    {
+        if (string.IsNullOrEmpty(playerName))
+            playerName = "Player" + Random.Range(10, 100);
+
+        LobbyManager.Instance.Authenticate(playerName);
         SceneLoaderManager.Instance.LoadSceneAsync(ProjectScenes.Lobby);
     }
 }
