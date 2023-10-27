@@ -8,24 +8,24 @@ public class InputWindowUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI title;
     [SerializeField] private TMP_InputField inputField;
-    [SerializeField] private Button saveBtn;
+    [SerializeField] private Button okBtn;
     [SerializeField] private Button cancelBtn;
 
-    public UnityEvent<string> onSave = new UnityEvent<string>();
+    public UnityEvent<string> onOk = new UnityEvent<string>();
     public UnityEvent onCancel = new UnityEvent();
 
     private void Awake()
     {
-        Hide();
-
-        saveBtn.onClick.AddListener(SaveClick);
+        okBtn.onClick.AddListener(OkClick);
         cancelBtn.onClick.AddListener(CancelClick);
     }
 
-    public void Show(string newTitle)
+    public void Show(string newTitle, int newMaxCharacters)
     {
-        title.text = newTitle;
         gameObject.SetActive(true);
+        title.text = newTitle;
+        inputField.characterLimit = newMaxCharacters;
+        inputField.characterValidation = TMP_InputField.CharacterValidation.Alphanumeric;
     }
 
     private void Hide()
@@ -33,9 +33,9 @@ public class InputWindowUI : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    private void SaveClick()
+    private void OkClick()
     {
-        onSave?.Invoke(inputField.text);
+        onOk?.Invoke(inputField.text);
         Hide();
     }
 

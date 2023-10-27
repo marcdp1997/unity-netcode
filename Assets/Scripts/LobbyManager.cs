@@ -21,7 +21,6 @@ public class LobbyManager : MonoBehaviour
     private string playerName;
 
     private const int MaxLobbiesToShow = 5;
-    private const int LobbyMaxPlayers = 2;
 
     public static string KeyJoinCode { get { return "JoinCode"; } }
     public static string KeyPlayerName { get { return "PlayerName"; } }
@@ -77,13 +76,13 @@ public class LobbyManager : MonoBehaviour
         }
     }
 
-    public async void CreateLobby()
+    public async void CreateLobby(string name, int numPlayers, bool isPrivate)
     {
         try
         {
             CreateLobbyOptions options = new CreateLobbyOptions()
             {
-                IsPrivate = false,
+                IsPrivate = isPrivate,
                 Player = GetPlayer(),
                 Data = new Dictionary<string, DataObject>
                 {
@@ -91,7 +90,7 @@ public class LobbyManager : MonoBehaviour
                 }
             };
 
-            joinedLobby = await LobbyService.Instance.CreateLobbyAsync(options.Player.Data[KeyPlayerName].Value + "'s Lobby", LobbyMaxPlayers, options);
+            joinedLobby = await LobbyService.Instance.CreateLobbyAsync(name, numPlayers, options);
             EventManager.Instance.Publish(new EventData(EventIds.OnLobbyCreated));
         }
         catch (LobbyServiceException e)
@@ -152,41 +151,42 @@ public class LobbyManager : MonoBehaviour
     }
 
     private void HandleRefreshLobbyList()
-    {
-        if ((refreshLobbiesTimer -= Time.deltaTime) < 0)
-        {
-            refreshLobbiesTimer = 5f;
-            RefreshLobbyList();
-        }
+    {     
+        RefreshLobbyList();
     }
 
     public async void RefreshLobbyList()
     {
-        if (UnityServices.State != ServicesInitializationState.Initialized || !AuthenticationService.Instance.IsSignedIn ||
+        if ((refreshLobbiesTimer -= Time.deltaTime) < 0)
+        {
+            refreshLobbiesTimer = 5f;
+
+            if (UnityServices.State != ServicesInitializationState.Initialized || !AuthenticationService.Instance.IsSignedIn ||
             joinedLobby != null) return;
 
-        try
-        {
-            QueryLobbiesOptions options = new QueryLobbiesOptions()
+            try
             {
-                Count = MaxLobbiesToShow,
-                Filters = new List<QueryFilter>
+                QueryLobbiesOptions options = new QueryLobbiesOptions()
+                {
+                    Count = MaxLobbiesToShow,
+                    Filters = new List<QueryFilter>
                 {
                     new QueryFilter(QueryFilter.FieldOptions.AvailableSlots, "0", QueryFilter.OpOptions.GT)
                 },
-                Order = new List<QueryOrder>
+                    Order = new List<QueryOrder>
                 {
                     new QueryOrder(false, QueryOrder.FieldOptions.AvailableSlots),
                     new QueryOrder(false, QueryOrder.FieldOptions.Created)
                 }
-            };
+                };
 
-            QueryResponse response = await Lobbies.Instance.QueryLobbiesAsync(options);
-            EventManager.Instance.Publish(new OnLobbyListRefreshedEventData(response.Results));
-        }
-        catch (LobbyServiceException e)
-        {
-            Debug.Log(e);
+                QueryResponse response = await Lobbies.Instance.QueryLobbiesAsync(options);
+                EventManager.Instance.Publish(new OnLobbyListRefreshedEventData(response.Results));
+            }
+            catch (LobbyServiceException e)
+            {
+                Debug.Log(e);
+            }
         }
     }
 

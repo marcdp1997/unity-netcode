@@ -9,13 +9,21 @@ public class LobbyUIController : MonoBehaviour
 {
     [Header("Welcome Screen")]
     [SerializeField] private CanvasGroup welcomeScreen;
+    [SerializeField] private Button returnBtn;
     [SerializeField] private Button createLobbyBtn;
-    [SerializeField] private Button searchLobbiesBtn;
+    [SerializeField] private Button findLobbyBtn;
+
+    [Header("Lobby Params Screen")]
+    [SerializeField] private CanvasGroup lobbyParamsScreen;
+    [SerializeField] private Button changeLobbyNameBtn;
+    [SerializeField] private Button changeLobbyPlayersBtn;
+    [SerializeField] private Button changeLobbyPrivacyBtn;
+    [SerializeField] private Button saveParamsBtn;
+    [SerializeField] private InputWindowUI inputWindow;
 
     [Header("Search Lobbies Screen")]
-    [SerializeField] private Button returnBtn;
-    [SerializeField] private Button refreshBtn;
     [SerializeField] private CanvasGroup searchLobbiesScreen;
+    [SerializeField] private Button refreshBtn;
     [SerializeField] private GameObject lobbyBoxUI;
 
     [Header("Wait Screen")]
@@ -25,16 +33,33 @@ public class LobbyUIController : MonoBehaviour
     [SerializeField] private GameObject playerBoxUI;
 
     private CanvasGroup currScreen;
+    private TextMeshProUGUI lobbyNameBtnText;
+    private TextMeshProUGUI lobbyPlayersBtnText;
+    private TextMeshProUGUI lobbyPrivacyBtnText;
+
+    private bool isPrivate = false;
+    private int currNumPlayers = 2;
+    private const int MinNumPlayers = 2;
+    private const int MaxNumPlayers = 4;
 
     private void Awake()
     {
+        lobbyNameBtnText = changeLobbyNameBtn.GetComponentInChildren<TextMeshProUGUI>();
+        lobbyPlayersBtnText = changeLobbyPlayersBtn.GetComponentInChildren<TextMeshProUGUI>();
+        lobbyPrivacyBtnText = changeLobbyPrivacyBtn.GetComponentInChildren<TextMeshProUGUI>();
+
         ChangeScreen(welcomeScreen);
+        EnableScreen(lobbyParamsScreen, false);
         EnableScreen(searchLobbiesScreen, false);
         EnableScreen(waitScreen, false);
 
-        createLobbyBtn.onClick.AddListener(CreateLobbyClick);
-        searchLobbiesBtn.onClick.AddListener(SearchForLobbiesClick);
         returnBtn.onClick.AddListener(ReturnClick);
+        createLobbyBtn.onClick.AddListener(CreateLobbyClick);
+        findLobbyBtn.onClick.AddListener(SearchForLobbiesClick);
+        changeLobbyNameBtn.onClick.AddListener(ChangeLobbyNameClick);
+        changeLobbyPlayersBtn.onClick.AddListener(ChangeLobbyPlayersClick);
+        changeLobbyPrivacyBtn.onClick.AddListener(ChangeLobbyPrivacyClick);
+        saveParamsBtn.onClick.AddListener(SaveParamsClick);
         refreshBtn.onClick.AddListener(RefreshClick);
         startGameBtn.onClick.AddListener(StartGameClick);
 
@@ -54,7 +79,38 @@ public class LobbyUIController : MonoBehaviour
 
     private void CreateLobbyClick()
     {
-        LobbyManager.Instance.CreateLobby();
+        ChangeScreen(lobbyParamsScreen);
+    }
+
+    private void ChangeLobbyNameClick()
+    {
+        inputWindow.Show("Enter lobby name", 15);
+        inputWindow.onOk.AddListener(OnLobbyNameChanged);
+    }
+
+    private void OnLobbyNameChanged(string newName)
+    {
+        lobbyNameBtnText.text = newName;
+        inputWindow.onOk.RemoveListener(OnLobbyNameChanged);
+    }
+
+    private void ChangeLobbyPlayersClick()
+    {
+        currNumPlayers++;
+        if (currNumPlayers > MaxNumPlayers) currNumPlayers = MinNumPlayers;
+        lobbyPlayersBtnText.text = currNumPlayers.ToString();
+    }
+
+    private void ChangeLobbyPrivacyClick()
+    {
+        isPrivate = !isPrivate;
+        lobbyPrivacyBtnText.text = isPrivate ? "Private" : "Public"; 
+    }
+
+    private void SaveParamsClick()
+    {
+        lobbyName.text = lobbyNameBtnText.text;
+        LobbyManager.Instance.CreateLobby(lobbyNameBtnText.text, currNumPlayers, isPrivate);
     }
 
     private void OnLobbyCreated(EventData eventData)
@@ -76,8 +132,8 @@ public class LobbyUIController : MonoBehaviour
 
     private void ReturnClick()
     {
-        if (searchLobbiesScreen.alpha == 1)
-            ChangeScreen(welcomeScreen);
+        if (searchLobbiesScreen.alpha == 1) ChangeScreen(welcomeScreen);
+        if (lobbyParamsScreen.alpha == 1) ChangeScreen(welcomeScreen);
 
         if (waitScreen.alpha == 1)
         {
