@@ -25,7 +25,12 @@ public class InputWindowUI : MonoBehaviour
         gameObject.SetActive(true);
         title.text = newTitle;
         inputField.characterLimit = newMaxCharacters;
-        inputField.characterValidation = TMP_InputField.CharacterValidation.Alphanumeric;
+        inputField.characterValidation = TMP_InputField.CharacterValidation.CustomValidator;
+
+        inputField.onValidateInput = (string text, int charIndex, char c) =>
+        {
+            return ValidateChar(text, charIndex, c);
+        };
     }
 
     private void Hide()
@@ -43,5 +48,10 @@ public class InputWindowUI : MonoBehaviour
     {
         onCancel?.Invoke();
         Hide();
+    }
+
+    private char ValidateChar(string text, int charIndex, char c)
+    {
+        return (char.IsWhiteSpace(c) || char.IsLetterOrDigit(c)) ? c : '\0';
     }
 }

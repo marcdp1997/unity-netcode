@@ -10,18 +10,17 @@ public class AuthenticationUIController : MonoBehaviour
     private void Awake()
     {
         authenticateBtn.onClick.AddListener(AuthenticateClick);
+        inputWindow.onOk.AddListener(InputWindowSaveClick);
     }
 
     private void AuthenticateClick()
     {
         inputWindow.Show("Enter your name", 15);
-        inputWindow.onOk.AddListener(InputWindowSaveClick);
     }
 
     private void InputWindowSaveClick(string playerName)
     {
         Authenticate(playerName);
-        inputWindow.onOk.RemoveListener(InputWindowSaveClick);
     }
 
     private void Authenticate(string playerName)

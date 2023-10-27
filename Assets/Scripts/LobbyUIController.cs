@@ -86,12 +86,19 @@ public class LobbyUIController : MonoBehaviour
     {
         inputWindow.Show("Enter lobby name", 15);
         inputWindow.onOk.AddListener(OnLobbyNameChanged);
+        inputWindow.onCancel.AddListener(OnLobbyNameNotChanged);
     }
 
     private void OnLobbyNameChanged(string newName)
     {
         lobbyNameBtnText.text = newName;
         inputWindow.onOk.RemoveListener(OnLobbyNameChanged);
+    }
+
+    private void OnLobbyNameNotChanged()
+    {
+        inputWindow.onOk.RemoveListener(OnLobbyNameChanged);
+        inputWindow.onCancel.RemoveListener(OnLobbyNameNotChanged);
     }
 
     private void ChangeLobbyPlayersClick()
