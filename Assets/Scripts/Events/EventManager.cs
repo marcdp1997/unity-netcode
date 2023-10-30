@@ -20,6 +20,8 @@ namespace Arrowfist.Managers
 
         private Dictionary<EventIds, Action<EventData>> eventDictionary;
 
+        private List<EventData> eventsToPublish = new List<EventData>();
+
         private void Awake()
         {
             Instance = this;
@@ -49,10 +51,20 @@ namespace Arrowfist.Managers
 
         public void Publish(EventData eventData)
         {
-            if (eventDictionary.TryGetValue(eventData.EventId, out Action<EventData> thisEvent))
+            eventsToPublish.Add(eventData);
+        }
+
+        private void LateUpdate()
+        {
+            foreach (EventData eventData in eventsToPublish)
             {
-                thisEvent?.Invoke(eventData);
+                if (eventDictionary.TryGetValue(eventData.EventId, out Action<EventData> thisEvent))
+                {
+                    thisEvent?.Invoke(eventData);
+                }
             }
+
+            eventsToPublish.Clear();
         }
     }
 }

@@ -2,6 +2,7 @@ using TMPro;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
+using Arrowfist.Managers;
 
 public class LobbyBoxUI : MonoBehaviour
 {

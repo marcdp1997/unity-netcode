@@ -4,6 +4,7 @@ using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
 using Arrowfist.Managers;
+using Unity.Services.Authentication;
 
 public class LobbyUIController : MonoBehaviour
 {
@@ -21,8 +22,8 @@ public class LobbyUIController : MonoBehaviour
     [SerializeField] private Button saveParamsBtn;
     [SerializeField] private InputWindowUI inputWindow;
 
-    [Header("Search Lobbies Screen")]
-    [SerializeField] private CanvasGroup searchLobbiesScreen;
+    [Header("Find Lobby Screen")]
+    [SerializeField] private CanvasGroup findLobbyScreen;
     [SerializeField] private Button refreshBtn;
     [SerializeField] private GameObject lobbyBoxUI;
 
@@ -50,7 +51,7 @@ public class LobbyUIController : MonoBehaviour
 
         ChangeScreen(welcomeScreen);
         EnableScreen(lobbyParamsScreen, false);
-        EnableScreen(searchLobbiesScreen, false);
+        EnableScreen(findLobbyScreen, false);
         EnableScreen(waitScreen, false);
 
         returnBtn.onClick.AddListener(ReturnClick);
@@ -67,6 +68,7 @@ public class LobbyUIController : MonoBehaviour
         EventManager.Instance.Subscribe(EventIds.OnLobbyJoined, OnLobbyJoined);
         EventManager.Instance.Subscribe(EventIds.OnLobbyListUpdated, OnLobbyListUpdated);
         EventManager.Instance.Subscribe(EventIds.OnLobbyJoinedUpdated, OnLobbyJoinedUpdated);
+        EventManager.Instance.Subscribe(EventIds.OnPlayerKickedFromLobby, OnLobbyPlayerKicked);
     }
 
     private void OnDestroy()
@@ -75,6 +77,7 @@ public class LobbyUIController : MonoBehaviour
         EventManager.Instance.Unsubscribe(EventIds.OnLobbyJoined, OnLobbyJoined);
         EventManager.Instance.Unsubscribe(EventIds.OnLobbyListUpdated, OnLobbyListUpdated);
         EventManager.Instance.Unsubscribe(EventIds.OnLobbyJoinedUpdated, OnLobbyJoinedUpdated);
+        EventManager.Instance.Unsubscribe(EventIds.OnPlayerKickedFromLobby, OnLobbyPlayerKicked);
     }
 
     private void CreateLobbyClick()
@@ -123,28 +126,26 @@ public class LobbyUIController : MonoBehaviour
     private void OnLobbyCreated(EventData eventData)
     {
         ChangeScreen(waitScreen);
-        startGameBtn.gameObject.SetActive(true);
     }
 
     private void SearchForLobbiesClick()
     {
-        ChangeScreen(searchLobbiesScreen);
+        ChangeScreen(findLobbyScreen);
     }
 
     private void OnLobbyJoined(EventData eventData)
     {
         ChangeScreen(waitScreen);
-        startGameBtn.gameObject.SetActive(false);
     }
 
     private void ReturnClick()
     {
-        if (searchLobbiesScreen.alpha == 1) ChangeScreen(welcomeScreen);
+        if (findLobbyScreen.alpha == 1) ChangeScreen(welcomeScreen);
         if (lobbyParamsScreen.alpha == 1) ChangeScreen(welcomeScreen);
 
         if (waitScreen.alpha == 1)
         {
-            ChangeScreen(LobbyManager.Instance.IsLobbyHost() ? welcomeScreen : searchLobbiesScreen);
+            ChangeScreen(LobbyManager.Instance.IsLobbyHost() ? welcomeScreen : findLobbyScreen);
             LobbyManager.Instance.LeaveLobby();
         }
     }
@@ -161,7 +162,7 @@ public class LobbyUIController : MonoBehaviour
 
     private void OnLobbyListUpdated(EventData eventData)
     {
-        if (searchLobbiesScreen.alpha != 1) return;
+        if (findLobbyScreen.alpha != 1) return;
 
         foreach (Transform child in lobbyBoxUI.transform.parent)
             if (child != lobbyBoxUI.transform) Destroy(child.gameObject);
@@ -179,6 +180,8 @@ public class LobbyUIController : MonoBehaviour
     {
         if (waitScreen.alpha != 1) return;
 
+        startGameBtn.gameObject.SetActive(LobbyManager.Instance.IsLobbyHost());
+
         List<Player> players = ((OnLobbyJoinedUpdatedEventData)eventData).Lobby.Players;
         string keyPlayerName = LobbyManager.KeyPlayerName;
 
@@ -189,8 +192,13 @@ public class LobbyUIController : MonoBehaviour
         {
             PlayerBoxUI box = Instantiate(playerBoxUI, playerBoxUI.transform.parent).GetComponent<PlayerBoxUI>();
             box.gameObject.SetActive(true);
-            box.SetInfo(players[i].Data[keyPlayerName].Value);
+            box.SetInfo(players[i].Data[keyPlayerName].Value, players[i].Id);
         }
+    }
+
+    private void OnLobbyPlayerKicked(EventData eventData)
+    { 
+        ChangeScreen(findLobbyScreen);
     }
 
     private void ChangeScreen(CanvasGroup newScreen)

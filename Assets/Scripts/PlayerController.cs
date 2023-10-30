@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
-using MyUtils;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
 using Arrowfist.Managers;
+using Arrowfist.Utils;
 
 public class PlayerController : NetworkBehaviour
 {

@@ -1,50 +1,51 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
-using UnityEditor;
 
-public class InputManager : MonoBehaviour
+namespace Arrowfist.Managers
 {
-    private bool usingGamepad;
-    private PlayerInput playerInput;
-    private EventSystem eventSystem;
-    private GameObject firstSelected;
-
-    public static InputManager Instance { get; private set; }
-
-    private void Awake()
+    public class InputManager : MonoBehaviour
     {
-        Instance = this;
+        private bool usingGamepad;
+        private PlayerInput playerInput;
+        private EventSystem eventSystem;
+        private GameObject firstSelected;
 
-        playerInput = gameObject.GetComponent<PlayerInput>();
-        playerInput.onControlsChanged += ChangeControls;
+        public static InputManager Instance { get; private set; }
 
-        eventSystem = gameObject.GetComponent<EventSystem>();
-        firstSelected = eventSystem.firstSelectedGameObject;
-    }
-
-    private void OnDestroy()
-    {
-        playerInput.onControlsChanged -= ChangeControls;
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.Confined;
-    }
-
-    private void ChangeControls(PlayerInput pi)
-    {
-        usingGamepad = pi.currentControlScheme == "Gamepad";
-
-        if (usingGamepad)
+        private void Awake()
         {
-            eventSystem.SetSelectedGameObject(firstSelected);
-            Cursor.lockState = CursorLockMode.Locked;
-        }
-        else Cursor.lockState = CursorLockMode.Confined;
+            Instance = this;
 
-        Cursor.visible = !usingGamepad;
+            playerInput = gameObject.GetComponent<PlayerInput>();
+            playerInput.onControlsChanged += ChangeControls;
+
+            eventSystem = gameObject.GetComponent<EventSystem>();
+            firstSelected = eventSystem.firstSelectedGameObject;
+        }
+
+        private void OnDestroy()
+        {
+            playerInput.onControlsChanged -= ChangeControls;
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.Confined;
+        }
+
+        private void ChangeControls(PlayerInput pi)
+        {
+            usingGamepad = pi.currentControlScheme == "Gamepad";
+
+            if (usingGamepad)
+            {
+                eventSystem.SetSelectedGameObject(firstSelected);
+                Cursor.lockState = CursorLockMode.Locked;
+            }
+            else Cursor.lockState = CursorLockMode.Confined;
+
+            Cursor.visible = !usingGamepad;
+        }
+
+        public bool IsUsingGamepad() { return usingGamepad; }
     }
 
-    public bool IsUsingGamepad() { return usingGamepad; }
 }

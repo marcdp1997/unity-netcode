@@ -3,43 +3,47 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public enum ProjectScenes { Application, Authentication, Lobby, Game }
-
-public class SceneLoaderManager : MonoBehaviour
+namespace Arrowfist.Managers
 {
-    public static SceneLoaderManager Instance { get; private set; }
+    public enum ProjectScenes { Application, Authentication, Lobby, Game }
 
-    private ProjectScenes currScene;
-
-    private void Awake()
+    public class SceneLoaderManager : MonoBehaviour
     {
-        Instance = this;
-        LoadSceneAsync(ProjectScenes.Authentication);
-    }
+        public static SceneLoaderManager Instance { get; private set; }
 
-    public void LoadSceneAsync(ProjectScenes scene)
-    {
-        StartCoroutine(LoadSceneAsyncCoroutine(scene));
-    }
+        private ProjectScenes currScene;
 
-    private IEnumerator LoadSceneAsyncCoroutine(ProjectScenes sceneToLoad)
-    {
-        AsyncOperation asyncOperation;
-
-        if (currScene != ProjectScenes.Application)
+        private void Awake()
         {
-            asyncOperation = SceneManager.UnloadSceneAsync((int)currScene);
-            while (!asyncOperation.isDone) yield return null;
+            Instance = this;
+            LoadSceneAsync(ProjectScenes.Authentication);
         }
 
-        asyncOperation = SceneManager.LoadSceneAsync((int)sceneToLoad, LoadSceneMode.Additive);
-        while (!asyncOperation.isDone) yield return null;
+        public void LoadSceneAsync(ProjectScenes scene)
+        {
+            StartCoroutine(LoadSceneAsyncCoroutine(scene));
+        }
 
-        currScene = sceneToLoad;
+        private IEnumerator LoadSceneAsyncCoroutine(ProjectScenes sceneToLoad)
+        {
+            AsyncOperation asyncOperation;
+
+            if (currScene != ProjectScenes.Application)
+            {
+                asyncOperation = SceneManager.UnloadSceneAsync((int)currScene);
+                while (!asyncOperation.isDone) yield return null;
+            }
+
+            asyncOperation = SceneManager.LoadSceneAsync((int)sceneToLoad, LoadSceneMode.Additive);
+            while (!asyncOperation.isDone) yield return null;
+
+            currScene = sceneToLoad;
+        }
+
+        public void LoadNetworkScene(ProjectScenes sceneToLoad)
+        {
+            NetworkManager.Singleton.SceneManager.LoadScene(sceneToLoad.ToString(), LoadSceneMode.Additive);
+        }
     }
 
-    public void LoadNetworkScene(ProjectScenes sceneToLoad)
-    {
-        NetworkManager.Singleton.SceneManager.LoadScene(sceneToLoad.ToString(), LoadSceneMode.Additive);
-    }  
 }

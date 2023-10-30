@@ -1,6 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
-using MyUtils;
+using Arrowfist.Utils;
 
 public class Bullet : NetworkBehaviour
 {

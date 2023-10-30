@@ -8,6 +8,7 @@ namespace Arrowfist.Managers
         OnLobbyJoinedUpdated,
         OnLobbyListUpdated,
         OnLobbyLeft,
+        OnPlayerKickedFromLobby,
         OnGameStarted,
         OnGameEnded
     }
